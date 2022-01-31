@@ -1,13 +1,12 @@
 {% load static %} 
 {% include "partials/head.html" %}
-    <title>Prueba</title>
+    <title>Colores Your Work</title>
     <link rel="stylesheet" href="{% static 'home/home.css' %}">
 </head>
 <body>
     <div class="div">
         <!-- {% include "partials/navbar.html" %} -->
-        Hola, cómo te va? 
-        <hr>{{data}}<hr>
+        Hola, cómo te va?
 
         <span class="data"></span>
         <hr>        
@@ -16,10 +15,20 @@
             {% csrf_token %}
             <button id="create">Crear Códigos</button>
             <div id="take-code"></div>
-
         </form>
 
     </div>
+    {% if mark_error|length > 0 %}
+    <div class="mark_error">
+        {% for row in mark_error %}
+            <p>
+                <b>{{ row.title }}</b>
+                <p>{{ row.body }}</p>
+            </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
 	{% include "partials/footer.html" %}
     <script src="{% static 'home/home.js' %}"></script>
 
