@@ -1,0 +1,30 @@
+{% load static %} 
+{% include "partials/head.html" %}
+    <title>Prueba</title>
+    <link rel="stylesheet" href="{% static 'home/home.css' %}">
+</head>
+<body>
+    <div class="div">
+        <!-- {% include "partials/navbar.html" %} -->
+        Hola, cómo te va? 
+        <hr>{{data}}<hr>
+
+        <span class="data"></span>
+        <hr>        
+        <button id="read">Leer Códigos</button>
+        <form class="container-create" action="/createQR/" method="post">
+            {% csrf_token %}
+            <button id="create">Crear Códigos</button>
+            <div id="take-code"></div>
+
+        </form>
+
+    </div>
+	{% include "partials/footer.html" %}
+    <script src="{% static 'home/home.js' %}"></script>
+
+    <script type="text/javascript">
+        window.CSRF_TOKEN = "{{ csrf_token }}"; 
+    </script>
+</body>
+</html>
