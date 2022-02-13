@@ -61,19 +61,44 @@ def createQR(request):
         return redirect('/')
 
 def readQR_image(request):
-    # Leerlo desde una imagen
-    # pip install pyzbar
-    # apt install libzbar0
-    from pyzbar import pyzbar
-    from PIL import Image
-    
-    image = Image.open("../ver3.png")
-    qr_code = pyzbar.decode(image)[0]
-    
-    #convert into string
-    data = qr_code.data.decode('utf8').decode('shift-jis').decode('utf-8')
-    print("El mensaje es: ",data)
- 
+    import random
+    decoded_info = ['hola']
+    if request.POST and request.FILES and request.FILES['image']:
+        code = random.randint(1,40000000)
+        if Image_Inventory.objects.filter(code=code).exists():
+            code = random.randint(1,40000000)            
+            Image_Inventory.objects.create(name="color", quantity=4, image=request.POST.get('image'))
+        else:
+            Image_Inventory.objects.create(code=code, name="color", quantity=4, image=request.POST.get('image'))
+        import cv2 as cv
+        import numpy        
+        from pyzbar import pyzbar
+        # im = cv.imread(request.FILES['image'])
+        im = cv.imdecode(numpy.fromstring(request.FILES['image'].read(), numpy.uint8), cv.IMREAD_UNCHANGED)
+        
+        det = cv.QRCodeDetector()
+        retval, decoded_info, points, straight_qrcode = det.detectAndDecodeMulti(im)
+        
+        barcodes = pyzbar.decode(im)
+        # loop over the detected barcodes
+        for barcode in barcodes:
+            # extract the bounding box location of the barcode and draw the
+            # bounding box surrounding the barcode on the im
+            (x, y, w, h) = barcode.rect
+            cv.rectangle(im, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            # the barcode data is a bytes object so if we want to draw it on
+            # our output im we need to convert it to a string first
+            barcodeData = barcode.data.decode("utf-8")
+            barcodeType = barcode.type
+            # draw the barcode data and barcode type on the im
+            text = "{} ({})".format(barcodeData, barcodeType)
+            cv.putText(im, text, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX,
+                0.5, (0, 0, 255), 2)
+            # print the barcode type and data to the terminal
+            print("[INFO] Found {} barcode: {}".format(barcodeType, barcodeData))
+        
+    return JsonResponse(decoded_info, safe=False)
+
 def readQR(request):
     print(request.POST.get('action'), type(request.POST.get('action')))
     mark_error = []
@@ -161,4 +186,8 @@ def readQR(request):
             if not cap.release():
                 cv2.destroyAllWindows()
                 cap.release()
-    return JsonResponse(mark_error, safe=False)            
+    return JsonResponse(mark_error, safe=False)      
+
+def readJS(request):
+    return render(request, "readJS.html", {})
+

@@ -5,4 +5,6 @@ urlpatterns = [
     path('', views.home),
     path('readQR/', views.readQR),
     path('createQR/', views.createQR),
+    path('readJS/', views.readJS),
+    path('image/', views.readQR_image),
 ]

@@ -1,22 +1,14 @@
 {% load static %} 
 {% include "partials/head.html" %}
     <title>Colores Your Work</title>
-    <link rel="stylesheet" href="{% static 'home/home.css' %}">
+    <link rel="stylesheet" href="{% static 'text.css' %}">
 </head>
 <body>
     <div class="div">
         <!-- {% include "partials/navbar.html" %} -->
-        Hola, cómo te va?
-
-        <span class="data"></span>
-        <hr>        
-        <button id="read">Leer Códigos</button>
-        <form class="container-create" action="/createQR/" method="post">
-            {% csrf_token %}
-            <button id="create">Crear Códigos</button>
-            <div id="take-code"></div>
-        </form>
-        <form id="imagen_container" class="container-create" method="post" enctype="multipart/form-data">
+        Página texto
+        <hr>
+        <form id="text_container" class="container-create" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="file" name="image" id="image">
             <button type="submit" id="read_image">Leer imagen</button>
@@ -37,6 +29,7 @@
 
 	{% include "partials/footer.html" %}
     <script src="{% static 'home/home.js' %}"></script>
+    <script src="{% static 'text.js' %}"></script>
 
     <script type="text/javascript">
         window.CSRF_TOKEN = "{{ csrf_token }}"; 
