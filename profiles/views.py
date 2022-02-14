@@ -18,7 +18,7 @@ def ordenar_puntos(puntos):
     return [x1_order[0], x1_order[1], x2_order[0], x2_order[1]]
     
     
-def read_text_d(request):
+def read_text(request):
     decoded_info = ['hola']
     # instalar tesseact de https://github.com/tesseract-ocr/tessdoc
     if request.POST and request.FILES and request.FILES['image']:
@@ -27,7 +27,7 @@ def read_text_d(request):
         import pytesseract
         pytesseract.pytesseract.tesseract_cmd = r'D:\tesseract\tesseract.exe'
         im = cv.imdecode(numpy.fromstring(request.FILES['image'].read(), numpy.uint8), cv.IMREAD_UNCHANGED)
-        im = cv.resize(im, None, fx=0.5, fy=0.5)
+        im = cv.resize(im, None, fx=3, fy=3)
         gray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)
         
         canny = cv.Canny(gray, 10, 150)
@@ -36,19 +36,24 @@ def read_text_d(request):
         cnts = cv.findContours(canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[0]
         cnts = sorted(cnts, key=cv.contourArea, reverse=True)[:1]
         
-        gray = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 113,11)
-        config = '--psm 4'
+        # gray = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 85,11)
+        # gray = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 85,9)
+        gray = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 67,9)
+        config = '--psm 6'
         texto_gray = pytesseract.image_to_string(gray, lang='spa', config=config)
+        # texto_gray = pytesseract.image_to_string(gray, lang='spa')
         print('texto_gray: ', len(texto_gray), " - ", texto_gray)
         
         from pytesseract import Output
-        d = pytesseract.image_to_data(gray, output_type=Output.DICT, lang='spa')
+        d = pytesseract.image_to_data(gray, output_type=Output.DICT, lang='spa', config=config)
         n_boxes = len(d['text'])
         for i in range(n_boxes):
             if int(float(d['conf'][i])) > 60:
                 (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])
                 gray = cv2.rectangle(gray, (x,y), (x+w, y+h), (0, 0, 255), 2)
         
+        print('d["text"]: ', len(d["text"]), " - ", d["text"])
+        gray = cv.resize(gray, None, fx=0.6, fy=0.6)
         cv.imshow('gray', gray)
         cv.waitKey(0)
         cv.destroyAllWindows()
